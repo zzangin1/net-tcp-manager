@@ -20,7 +20,7 @@ namespace NetTcpManager.Model
 
 		#region => Constructor
 
-		public SendMessage(Socket client, string message)
+		public SendMessage(string message, Socket client = null)
 		{
 			Message = message;
 			Client = client;
