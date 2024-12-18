@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NetTcpManager.Model
+﻿namespace NetTcpManager.Model
 {
-	/// <summary>
-	/// RecvMessage 구조
-	/// </summary>
 	public class RecvMessage
 	{
 		#region => Field
