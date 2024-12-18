@@ -1,9 +1,11 @@
-﻿using NetTcpManager.MessageQueue;
-using NetTcpManager.Model;
-using System.Diagnostics;
-using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace NetTcpManager.Server
 {
@@ -36,8 +38,6 @@ namespace NetTcpManager.Server
 			}
 		}
 
-		public NetMessageQueueManager MessageQueue { get; set; }
-
 		#endregion => Property
 
 		#region => Constructor
@@ -46,9 +46,6 @@ namespace NetTcpManager.Server
 		{
 			_client = new List<Socket>();
 			_recvDataThreads = new List<Thread>();
-			MessageQueue = new NetMessageQueueManager(true);
-			MessageQueue.StartMsgQueueThread();
-			MessageQueue.SendToClient = SendData;
 		}
 
 		#endregion => Constructor
@@ -75,7 +72,6 @@ namespace NetTcpManager.Server
 		/// </summary>
 		public void StopServer()
 		{
-			MessageQueue.StopMsgQueueThread();
 			StopRecvDataThread();
 			StopServerThread();
 		}
@@ -219,30 +215,11 @@ namespace NetTcpManager.Server
 		private void ProcessRecvData(byte[] data, int dataSize, Socket client)
 		{
 			string recvData = Encoding.UTF8.GetString(data, 0, dataSize);
-			string processData = string.Empty;
 
-			// 받은 데이터 처리 로직
+			// 받은 데이터 처리
 
 			// Client에 응답 데이터 전송
-			RecvMessage recvMsg = new RecvMessage(recvData);
-			SendMessage sendMsg = new SendMessage(processData, client);
-			MessageQueue.RecvMsgQueue.Enqueue(recvMsg);
-			MessageQueue.SendMsgQueue.Enqueue(sendMsg);
-		}
 
-		/// <summary>
-		/// 전송 데이터 포맷팅 처리 메서드
-		/// </summary>
-		/// <param name="message"></param>
-		/// <param name="client"></param>
-		public void ProcessSendData(string message, Socket client)
-		{
-			// 데이터 포맷팅 처리 로직
-
-
-			// SendMsgQueue 추가
-			var sendMsg = new SendMessage(message, client);
-			MessageQueue.SendMsgQueue.Enqueue((sendMsg));
 		}
 
 		/// <summary>
