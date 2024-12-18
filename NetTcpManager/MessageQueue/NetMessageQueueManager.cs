@@ -1,12 +1,7 @@
 ﻿using NetTcpManager.Model;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Sockets;
 
 namespace NetTcpManager.MessageQueue
 {
@@ -24,10 +19,19 @@ namespace NetTcpManager.MessageQueue
 
 		#endregion => Field
 
+		#region => Delegate
+
+		// 서버 -> 클라이언드 Delegate
+		public Action<string, Socket> SendToClient;
+
+		// 클라이언트 -> 서버 Delegate
+		public Action<string> SendToServer;
+
+		#endregion => Delegate
+
 		#region => Property
 
 		public ConcurrentQueue<RecvMessage> RecvMsgQueue { get; set; }
-
 		public ConcurrentQueue<SendMessage> SendMsgQueue { get; set; }
 
 		#endregion => Property
@@ -49,6 +53,9 @@ namespace NetTcpManager.MessageQueue
 
 		#region => Method
 
+		/// <summary>
+		/// Message Queue Thread 시작
+		/// </summary>
 		public void StartMsgQueueThread()
 		{
 			_isRecvMsgThreadRunning = true;
@@ -62,6 +69,10 @@ namespace NetTcpManager.MessageQueue
 			_sendMsgQueueThread.Start();
 		}
 
+		/// <summary>
+		/// Message Queue Thread 종료
+		/// </summary>
+		/// <exception cref="Exception"></exception>
 		public void StopMsgQueueThread()
 		{
 			_isRecvMsgThreadRunning = false;
@@ -102,12 +113,12 @@ namespace NetTcpManager.MessageQueue
 						// 클라이언트로부터 받은 요청 처리 로직
 						if (_isServer)
 						{
-
+							Console.WriteLine(recvMsg.Message);
 						}
 						// 서버로부터 받은 요청 처리 로직
 						else
 						{
-
+							Console.WriteLine(recvMsg.Message);
 						}
 					}
 					catch
@@ -136,20 +147,20 @@ namespace NetTcpManager.MessageQueue
 
 					try
 					{
-						// 클라이언트로부터 받은 요청 처리 로직
+						// 서버 -> 클라이언트 메시지 전송
 						if (_isServer)
 						{
-
+							SendToClient?.Invoke(sendMsg.Message, sendMsg.Client);
 						}
-						// 서버로부터 받은 요청 처리 로직
+						// 클라이언트 -> 서버 메시지 전송
 						else
 						{
-
+							SendToServer?.Invoke(sendMsg.Message);
 						}
 					}
 					catch
 					{
-
+						throw new Exception("MessageQueue : Send Data Fail");
 					}
 				}
 				else
